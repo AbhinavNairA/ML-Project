@@ -1,5 +1,8 @@
 import os
 import sys
+from src.components.data_transformation import DataTransformation
+
+from src.components.model_trainer import ModelTrainer
 from src.logger import logging
 from src.exception import CustomException
 import pandas as pd
@@ -22,6 +25,8 @@ class DataIngestion:
             df=pd.read_csv('notebook/data/stud.csv')
             logging.info("Read the dataset as dataframe")
 
+            os.makedirs(os.path.dirname(self.ingestion_config.raw_data_path),exist_ok=True)
+
  
             df.to_csv(self.ingestion_config.raw_data_path,index=False,header=True)
 
@@ -39,3 +44,13 @@ class DataIngestion:
             )
         except Exception as e:
             raise CustomException(e,sys)
+
+if __name__=="__main__":
+    obj=DataIngestion()
+    train_data,test_data=obj.initiate_data_ingestion()
+
+    data_transformation=DataTransformation()
+    train_array,test_array=data_transformation.initiate_data_transformation(train_data,test_data)
+
+    model_trainer=ModelTrainer()
+    model_trainer.initiate_model_trainer(train_array,test_array)
